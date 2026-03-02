@@ -116,4 +116,23 @@
                             companyName: "DVloper", productName: "Granny",
                         }, (p) => {
                             fill.style.width = (50 + (p * 50)) + "%";
-                            label.innerText = "Compiling WebGL: " + Math.round(p
+                            label.innerText = "Compiling WebGL: " + Math.round(p * 100) + "%";
+                        }).then(() => {
+                            document.getElementById('boot-screen').style.display = 'none';
+                        });
+                    };
+                    document.body.appendChild(script);
+                } catch (e) { label.innerText = "CRITICAL BOOT ERROR"; }
+            })();
+        }
+
+        function bootSpace() {
+            document.getElementById('hub').style.display = 'none';
+            document.querySelector('nav').style.display = 'none';
+            document.getElementById('stage').style.display = 'block';
+            document.getElementById('boot-screen').style.display = 'none';
+            document.getElementById('mount').innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" style="width:100%;height:100%;border:none;"></iframe>`;
+        }
+    </script>
+</body>
+</html>
