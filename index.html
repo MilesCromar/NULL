@@ -1,157 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>System Library</title>
+    <title>Game Library</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root {
-            --bg-main: #0a0b0d;
-            --card-bg: #16181d;
-            --accent-blue: #2563eb;
-            --text-main: #ffffff;
-            --text-dim: #64748b;
-            --border: #272a30;
-        }
-
+        /* Back to the original clean vibe from your first image */
         body {
             margin: 0;
-            background-color: var(--bg-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            color: var(--text-main);
-            overflow: hidden;
-        }
-
-        /* Nav with Versioning */
-        nav {
-            background: #000;
-            padding: 12px 40px;
-            border-bottom: 1px solid var(--border);
+            padding: 0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f0f2f5; /* Light grey-blue */
+            font-family: -apple-system, system-ui, sans-serif;
         }
 
-        .nav-logo { font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
-        .nav-version { font-family: monospace; font-size: 0.7rem; color: var(--accent-blue); background: rgba(37, 99, 235, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.2); }
+        nav {
+            padding: 15px;
+            text-align: center;
+            background: transparent;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
         .container {
-            height: calc(100vh - 60px);
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        #hub-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
-            width: 100%;
-            max-width: 900px;
+            flex-wrap: wrap;
+            padding: 40px;
         }
 
-        .game-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
+        /* The "Hello World" Style Card */
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 300px;
+            transition: transform 0.2s;
         }
 
-        .card-content { padding: 32px; }
-        .game-card h2 { margin: 0 0 8px 0; font-size: 1.2rem; font-weight: 600; }
-        .game-card p { margin: 0 0 24px 0; color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; }
+        .card:hover { transform: translateY(-5px); }
 
-        .btn-launch {
-            background-color: var(--accent-blue);
+        h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
+        p { color: #4b5563; font-size: 1rem; margin-bottom: 30px; }
+
+        /* The specific Blue Button you liked */
+        .btn-blue {
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 0;
-            width: 100%;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
+            width: 100%;
+            text-transform: none; /* Removed the "all caps" kid-look */
         }
 
-        /* Stage Area */
-        #stage {
+        .btn-blue:hover { background-color: #0056b3; }
+
+        /* Fullscreen Game Area */
+        #game-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 1000;
+            z-index: 100;
         }
 
-        .btn-exit {
+        .exit-link {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 1001;
-            background: #e11d48;
+            top: 20px;
+            left: 20px;
             color: white;
-            border: none;
+            text-decoration: none;
+            font-size: 0.9rem;
+            z-index: 110;
+            background: rgba(255,255,255,0.1);
             padding: 8px 15px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            cursor: pointer;
+            border-radius: 5px;
         }
 
-        #status {
+        iframe, canvas { width: 100%; height: 100%; border: none; }
+
+        #load-status {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-family: monospace;
-            color: var(--accent-blue);
+            color: white;
+            text-align: center;
         }
-
-        iframe, canvas { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-logo">System Library</div>
-        <div class="nav-version">BUILD_v1.0.4</div>
-        <div style="width:100px"></div> </nav>
+    <nav>BUILD_v1.0.5</nav>
 
-    <div class="container" id="hub-view">
-        <div id="hub-grid">
-            <div class="game-card">
-                <div class="card-content">
-                    <h2>Granny</h2>
-                    <p>Standard Horror Simulation. Initializing original Unity assets via secure stream.</p>
-                    <button class="btn-launch" id="launch-granny">Launch</button>
-                </div>
-            </div>
+    <div class="container" id="hub">
+        <div class="card">
+            <h2>Granny</h2>
+            <p>The original horror experience.</p>
+            <button class="btn-blue" onclick="play('granny')">Launch</button>
+        </div>
 
-            <div class="game-card">
-                <div class="card-content">
-                    <h2>Space Waves</h2>
-                    <p>Geometric velocity protocol. High-frequency I/O stream synchronization.</p>
-                    <button class="btn-launch" id="launch-spacewaves">Launch</button>
-                </div>
-            </div>
+        <div class="card">
+            <h2>Space Waves</h2>
+            <p>Fast-paced arcade action.</p>
+            <button class="btn-blue" onclick="play('spacewaves')">Launch</button>
         </div>
     </div>
 
-    <div id="stage">
-        <button class="btn-exit" onclick="location.reload()">Terminate Process</button>
-        <div id="status">INITIALIZING...</div>
+    <div id="game-overlay">
+        <a href="#" class="exit-link" onclick="location.reload()">← Back to Library</a>
+        <div id="load-status">Loading System...</div>
         <div id="mount" style="width:100%; height:100%;"></div>
     </div>
 
     <script>
-        // Mock SDK for Granny
+        // Fix for the "YaGames" error in your screenshot
         window.YaGames = { init: () => Promise.resolve({ deviceInfo: {type:'desktop'}, adv: {showFullscreenAdv:()=>{}} }) };
 
-        document.getElementById('launch-granny').addEventListener('click', () => {
-            initStage();
-            const canvas = document.createElement('canvas');
-            canvas.id = "unity-canvas";
-            document.getElementById('mount').appendChild(canvas);
+        function play(game) {
+            document.getElementById('hub').style.display = 'none';
+            document.querySelector('nav').style.display = 'none';
+            const overlay = document.getElementById('game-overlay');
+            const mount = document.getElementById('mount');
+            overlay.style.display = 'block';
+
+            if (game === 'granny') {
+                const canvas = document.createElement('canvas');
+                canvas.id = "unity-canvas";
+                mount.appendChild(canvas);
+                loadGranny(canvas);
+            } else {
+                document.getElementById('load-status').style.display = 'none';
+                mount.innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" allow="autoplay; fullscreen"></iframe>`;
+            }
+        }
+
+        function loadGranny(canvas) {
+            const loader = document.createElement("script");
+            // Direct link to the loader
+            loader.src = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.loader.js";
             
-            const config = {
-                dataUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.data",
-                frameworkUrl: "https://cdn
+            loader.onload = () => {
+                const config = {
+                    dataUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.data",
+                    frameworkUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.framework.js",
+                    codeUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.wasm",
+                    streamingAssetsUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/StreamingAssets",
+                    companyName: "DVloper",
+                    productName: "Granny",
+                };
+
+                createUnityInstance(canvas, config, (p) => {
+                    document.getElementById('load-status').innerText = "Loading: " + Math.round(p * 100) + "%";
+                }).catch(err => {
+                    document.getElementById('load-status').innerHTML = "<b>Error:</b> Browser blocked the game files.<br>Try running this on a website like GitHub Pages or Replit.";
+                });
+            };
+            document.body.appendChild(loader);
+        }
+    </script>
+</body>
+</html>
