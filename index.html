@@ -5,170 +5,64 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Back to the original clean vibe from your first image */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #f0f2f5; /* Light grey-blue */
-            font-family: -apple-system, system-ui, sans-serif;
-        }
-
-        nav {
-            padding: 15px;
-            text-align: center;
-            background: transparent;
-            color: #64748b;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            padding: 40px;
-        }
-
-        /* The "Hello World" Style Card */
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            width: 300px;
-            transition: transform 0.2s;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: #000; }
-        p { color: #4b5563; font-size: 1rem; margin-bottom: 30px; }
-
-        /* The specific Blue Button you liked */
-        .btn-blue {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            text-transform: none; /* Removed the "all caps" kid-look */
-        }
-
-        .btn-blue:hover { background-color: #0056b3; }
-
-        /* Fullscreen Game Area */
-        #game-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 100;
-        }
-
-        .exit-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            font-size: 0.9rem;
-            z-index: 110;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 15px;
-            border-radius: 5px;
-        }
-
+        body { margin: 0; background-color: #f0f2f5; font-family: sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+        nav { padding: 15px; display: flex; justify-content: center; background: #fff; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 0.8rem; font-weight: 600; }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; gap: 25px; padding: 40px; flex-wrap: wrap; }
+        .card { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 280px; }
+        .btn-launch { background-color: #007bff; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 20px; text-transform: uppercase; font-size: 0.85rem; }
+        .btn-launch:hover { background-color: #0056b3; }
+        
+        #stage { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
+        .controls { position: absolute; top: 15px; left: 15px; z-index: 1001; display: flex; gap: 10px; }
+        .ctrl-btn { color: white; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px 15px; border: 1px solid #fff; font-size: 0.7rem; border-radius: 4px; text-decoration: none; }
+        #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #007bff; font-family: monospace; font-size: 1.2rem; }
         iframe, canvas { width: 100%; height: 100%; border: none; }
-
-        #load-status {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
 
-    <nav>BUILD_v1.0.5</nav>
+    <nav>BUILD_v1.0.8</nav>
 
     <div class="container" id="hub">
         <div class="card">
             <h2>Granny</h2>
-            <p>The original horror experience.</p>
-            <button class="btn-blue" onclick="play('granny')">Launch</button>
+            <p>Original Horror Assets (v1.8)</p>
+            <button class="btn-launch" onclick="launch('granny')">Launch</button>
         </div>
-
         <div class="card">
             <h2>Space Waves</h2>
-            <p>Fast-paced arcade action.</p>
-            <button class="btn-blue" onclick="play('spacewaves')">Launch</button>
+            <p>High-Speed Geometric Arcade</p>
+            <button class="btn-launch" onclick="launch('spacewaves')">Launch</button>
         </div>
     </div>
 
-    <div id="game-overlay">
-        <a href="#" class="exit-link" onclick="location.reload()">← Back to Library</a>
-        <div id="load-status">Loading System...</div>
+    <div id="stage">
+        <div class="controls">
+            <div class="ctrl-btn" onclick="location.reload()">BACK TO LIBRARY</div>
+        </div>
+        <div id="status">INITIALIZING...</div>
         <div id="mount" style="width:100%; height:100%;"></div>
     </div>
 
     <script>
-        // Fix for the "YaGames" error in your screenshot
-        window.YaGames = { init: () => Promise.resolve({ deviceInfo: {type:'desktop'}, adv: {showFullscreenAdv:()=>{}} }) };
+        // CRITICAL: Block the "YaGames" errors from the console
+        window.YaGames = { init: () => Promise.resolve({ deviceInfo: {type: 'desktop'}, adv: {showFullscreenAdv: () => {}} }) };
+        window.ysdk = window.YaGames;
 
-        function play(game) {
+        function launch(id) {
             document.getElementById('hub').style.display = 'none';
             document.querySelector('nav').style.display = 'none';
-            const overlay = document.getElementById('game-overlay');
+            document.getElementById('stage').style.display = 'block';
             const mount = document.getElementById('mount');
-            overlay.style.display = 'block';
 
-            if (game === 'granny') {
-                const canvas = document.createElement('canvas');
-                canvas.id = "unity-canvas";
-                mount.appendChild(canvas);
-                loadGranny(canvas);
+            if (id === 'granny') {
+                // We are using a more stable WebGL host for Granny
+                mount.innerHTML = `<iframe src="https://grannyfree.io/play/granny/" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
+                document.getElementById('status').style.display = 'none';
             } else {
-                document.getElementById('load-status').style.display = 'none';
-                mount.innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" allow="autoplay; fullscreen"></iframe>`;
+                document.getElementById('status').style.display = 'none';
+                mount.innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
             }
-        }
-
-        function loadGranny(canvas) {
-            const loader = document.createElement("script");
-            // Direct link to the loader
-            loader.src = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.loader.js";
-            
-            loader.onload = () => {
-                const config = {
-                    dataUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.data",
-                    frameworkUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.framework.js",
-                    codeUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build/Granny.wasm",
-                    streamingAssetsUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/StreamingAssets",
-                    companyName: "DVloper",
-                    productName: "Granny",
-                };
-
-                createUnityInstance(canvas, config, (p) => {
-                    document.getElementById('load-status').innerText = "Loading: " + Math.round(p * 100) + "%";
-                }).catch(err => {
-                    document.getElementById('load-status').innerHTML = "<b>Error:</b> Browser blocked the game files.<br>Try running this on a website like GitHub Pages or Replit.";
-                });
-            };
-            document.body.appendChild(loader);
         }
     </script>
 </body>
