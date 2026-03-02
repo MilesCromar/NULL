@@ -1,146 +1,174 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-    <title>Granny | Play Now</title>
+    <title>My Game Collection</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary-blue: #007bff;
+            --text-main: #000000;
+            --text-sub: #4b5563;
+        }
+
         body {
             margin: 0;
             padding: 0;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Simple Navigation UI */
+        nav {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h1 { font-size: 1.2rem; margin: 0; font-weight: 700; }
+
+        .container {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            background-color: #f0f2f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px;
         }
 
-        #game-card {
-            background: white;
-            padding: 40px;
+        /* Game Selection Grid */
+        #hub-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             text-align: center;
-            width: 90%;
-            max-width: 450px;
+            transition: transform 0.2s;
         }
 
-        h1 { margin-top: 0; font-size: 2rem; color: #000; font-weight: 700; }
-        p { color: #4b5563; font-size: 1.1rem; margin-bottom: 30px; }
+        .game-card:hover { transform: translateY(-5px); }
 
-        .btn-primary {
-            background-color: #007bff;
+        .game-card h2 { margin-top: 0; font-size: 1.5rem; }
+
+        .btn-launch {
+            background-color: var(--primary-blue);
             color: white;
             border: none;
-            padding: 12px 32px;
+            padding: 10px 25px;
             border-radius: 6px;
-            font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 1rem;
         }
 
-        .btn-primary:hover { background-color: #0056b3; }
-
-        #unity-container { display: none; width: 100vw; height: 100vh; background: #000; }
-        #unity-canvas { width: 100%; height: 100%; }
-        
-        #loading-overlay {
-            position: fixed;
-            color: white;
+        /* Hidden Game Player */
+        #game-view {
             display: none;
-            flex-direction: column;
-            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
         }
+
+        #back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 110;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        canvas { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="game-card">
-        <h1>Granny</h1>
-        <p>Your <b>index.html</b> is working. Ready to escape?</p>
-        <button class="btn-primary" id="start-button">Click Me</button>
+    <nav>
+        <h1>Game Stash</h1>
+        <span style="color: var(--text-sub); font-size: 0.9rem;">2 Games Available</span>
+    </nav>
+
+    <div class="container">
+        <div id="hub-view">
+            <div class="game-card">
+                <h2>Granny</h2>
+                <p>The original horror experience.</p>
+                <button class="btn-launch" onclick="launchGame('granny')">Play Now</button>
+            </div>
+
+            <div class="game-card">
+                <h2>New Game</h2>
+                <p>Ready to be added.</p>
+                <button class="btn-launch" onclick="launchGame('game2')" style="background-color: #6c757d;">Add Code</button>
+            </div>
+        </div>
     </div>
 
-    <div id="unity-container">
-        <div id="loading-overlay">LOADING...</div>
+    <div id="game-view">
+        <button id="back-btn" onclick="closeGame()">← Back to Hub</button>
         <canvas id="unity-canvas"></canvas>
     </div>
 
     <script>
-        // --- THE FIX: MOCK YANDEX SDK ---
-        // This stops the "YaGames is not defined" error
-        window.YaGames = {
-            init: function() {
-                return new Promise((resolve) => {
-                    console.log("Mock Yandex SDK Initialized");
-                    resolve({
-                        deviceInfo: { type: "desktop" },
-                        adv: { showFullscreenAdv: () => {}, showRewardedVideo: () => {} }
-                    });
-                });
-            }
-        };
+        // MOCK SDK to prevent ReferenceErrors
+        window.YaGames = { init: () => Promise.resolve({ deviceInfo: {type:'desktop'}, adv: {showFullscreenAdv:()=>{}} }) };
 
-        const startBtn = document.getElementById('start-button');
-        const gameCard = document.getElementById('game-card');
-        const unityContainer = document.getElementById('unity-container');
+        const hub = document.getElementById('hub-view');
+        const view = document.getElementById('game-view');
         const canvas = document.querySelector("#unity-canvas");
 
-        startBtn.addEventListener('click', () => {
-            gameCard.style.display = 'none';
-            unityContainer.style.display = 'flex';
-            unityContainer.style.justifyContent = 'center';
-            unityContainer.style.alignItems = 'center';
-            loadGranny();
-        });
+        function launchGame(gameId) {
+            hub.parentElement.style.display = 'none';
+            document.querySelector('nav').style.display = 'none';
+            view.style.display = 'block';
+
+            if (gameId === 'granny') {
+                loadGranny();
+            } else {
+                alert("Paste your second game's loading script here!");
+            }
+        }
+
+        function closeGame() {
+            location.reload(); // Simplest way to stop the game and go back
+        }
 
         async function loadGranny() {
             const buildUrl = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build";
             
-            async function mergeFiles(prefix, parts, ext) {
-                const buffers = [];
-                for (let i = 1; i <= parts; i++) {
-                    const res = await fetch(`${buildUrl}/${prefix}_part${i}.${ext}`);
-                    if(!res.ok) throw new Error("Asset part missing");
-                    buffers.push(await res.arrayBuffer());
+            async function merge(prefix, parts, ext) {
+                const b = [];
+                for (let i=1; i<=parts; i++) {
+                    const r = await fetch(`${buildUrl}/${prefix}_part${i}.${ext}`);
+                    b.push(await r.arrayBuffer());
                 }
-                const combined = new Uint8Array(buffers.reduce((a, b) => a + b.byteLength, 0));
-                let offset = 0;
-                buffers.forEach(b => { combined.set(new Uint8Array(b), offset); offset += b.byteLength; });
-                return combined;
+                const c = new Uint8Array(b.reduce((a,v)=>a+v.byteLength, 0));
+                let o=0; b.forEach(v=>{ c.set(new Uint8Array(v),o); o+=v.byteLength; });
+                return c;
             }
 
-            try {
-                const [data, wasm] = await Promise.all([
-                    mergeFiles("Granny", 2, "data"),
-                    mergeFiles("Granny", 2, "wasm")
-                ]);
-
-                const config = {
-                    dataUrl: URL.createObjectURL(new Blob([data])),
-                    frameworkUrl: buildUrl + "/Granny.framework.js",
-                    codeUrl: URL.createObjectURL(new Blob([wasm])),
-                    streamingAssetsUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/StreamingAssets",
-                    companyName: "DVloper",
-                    productName: "Granny",
-                };
-
-                const script = document.createElement("script");
-                script.src = buildUrl + "/Granny.loader.js";
-                script.onload = () => {
-                    createUnityInstance(canvas, config, (progress) => {
-                        // Progress logic can go here
-                    }).then(() => {
-                        console.log("Granny Loaded Successfully");
-                    });
-                };
-                document.body.appendChild(script);
-            } catch (err) {
-                console.error("Critical Load Error:", err);
-            }
-        }
-    </script>
-</body>
-</html>
+            const
