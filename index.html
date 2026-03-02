@@ -5,86 +5,69 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --accent: #3b82f6; --bg: #f0f2f5; }
-        body { margin: 0; background-color: var(--bg); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+        body { margin: 0; background-color: #f0f2f5; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
         
-        /* Top Center Versioning */
-        nav { padding: 15px; display: flex; justify-content: center; background: #fff; border-bottom: 1px solid #e2e8f0; z-index: 10; }
-        .version-tag { font-family: monospace; font-size: 0.75rem; color: var(--accent); font-weight: bold; background: #eff6ff; padding: 4px 12px; border-radius: 20px; border: 1px solid #dbeafe; }
+        /* Simple Nav */
+        nav { padding: 15px; display: flex; justify-content: center; background: #fff; border-bottom: 1px solid #e2e8f0; }
+        .version { font-family: monospace; font-size: 0.7rem; color: #3b82f6; }
 
-        .container { flex: 1; display: flex; align-items: center; justify-content: center; gap: 30px; padding: 40px; }
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; gap: 20px; padding: 20px; }
         
-        /* The Clean Card Style */
-        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 280px; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        h2 { margin: 0; font-size: 1.5rem; color: #111827; }
-        p { color: #6b7280; font-size: 0.9rem; margin: 10px 0 30px; }
+        /* Simple Cards */
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; width: 250px; }
+        h2 { margin: 0 0 10px; font-size: 1.2rem; }
         
-        .btn-launch { background-color: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.9rem; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; }
 
-        /* Fullscreen Stage */
-        #stage { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
+        /* Game Stage */
+        #stage { display: none; position: fixed; inset: 0; background: #000; z-index: 100; }
         
-        /* Better Loading Screen */
-        #boot-screen {
-            position: absolute; inset: 0; background: #0b0c10; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 1005; color: white;
+        /* The simplest loading possible */
+        #loading-screen {
+            position: absolute; inset: 0; background: #000; display: flex; 
+            align-items: center; justify-content: center; z-index: 110; color: white;
+            font-family: monospace; font-size: 1.2rem;
         }
-        .load-title { font-family: monospace; font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 20px; color: var(--accent); }
-        .progress-container { width: 300px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        #progress-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
-        .status-text { margin-top: 15px; font-size: 0.7rem; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; }
 
-        .exit-btn { position: absolute; top: 20px; left: 20px; z-index: 1010; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        .back-btn { position: absolute; top: 15px; left: 15px; z-index: 120; background: none; color: #666; border: 1px solid #666; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
         
-        canvas { width: 100%; height: 100%; display: block; }
+        canvas, iframe { width: 100%; height: 100%; border: none; display: block; }
     </style>
 </head>
 <body>
 
-    <nav><div class="version-tag">BUILD_v1.1.2</div></nav>
+    <nav><div class="version">v1.1.4</div></nav>
 
     <div class="container" id="hub">
         <div class="card">
             <h2>Granny</h2>
-            <p>Direct Asset Injection (v1.8)</p>
-            <button class="btn-launch" onclick="bootGranny()">Launch</button>
+            <button class="btn" onclick="bootGranny()">Launch</button>
         </div>
         <div class="card">
             <h2>Space Waves</h2>
-            <p>Geometric Arcade</p>
-            <button class="btn-launch" onclick="bootSpace()">Launch</button>
+            <button class="btn" onclick="bootSpace()">Launch</button>
         </div>
     </div>
 
     <div id="stage">
-        <button class="exit-btn" onclick="location.reload()">← BACK</button>
-        
-        <div id="boot-screen">
-            <div class="load-title">INITIALIZING SYSTEM</div>
-            <div class="progress-container"><div id="progress-fill"></div></div>
-            <div id="status-label" class="status-text">Merging Data Segments...</div>
-        </div>
-
+        <button class="back-btn" onclick="location.reload()">back</button>
+        <div id="loading-screen">loading...</div>
         <div id="mount" style="width:100%; height:100%;"></div>
     </div>
 
     <script>
-        const fill = document.getElementById('progress-fill');
-        const label = document.getElementById('status-label');
+        const loader = document.getElementById('loading-screen');
 
-        async function mergeFiles(baseUrl, prefix, parts, ext) {
-            const buffers = [];
-            for (let i = 1; i <= parts; i++) {
-                const res = await fetch(`${baseUrl}/${prefix}_part${i}.${ext}`);
-                if (!res.ok) throw new Error("Part Failed");
-                buffers.push(await res.arrayBuffer());
-                fill.style.width = ((i / parts) * 50) + "%"; // First 50% for downloading
+        async function getFiles(url, prefix, count, ext) {
+            const chunks = [];
+            for (let i = 1; i <= count; i++) {
+                const r = await fetch(`${url}/${prefix}_part${i}.${ext}`);
+                chunks.push(await r.arrayBuffer());
             }
-            const combined = new Uint8Array(buffers.reduce((a, b) => a + b.byteLength, 0));
-            let offset = 0;
-            buffers.forEach(b => { combined.set(new Uint8Array(b), offset); offset += b.byteLength; });
-            return combined;
+            const total = new Uint8Array(chunks.reduce((a, b) => a + b.byteLength, 0));
+            let pos = 0;
+            chunks.forEach(c => { total.set(new Uint8Array(c), pos); pos += c.byteLength; });
+            return total;
         }
 
         function bootGranny() {
@@ -95,34 +78,26 @@
             const canvas = document.createElement('canvas');
             document.getElementById('mount').appendChild(canvas);
 
-            const buildUrl = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build";
+            const base = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build";
             
             (async () => {
                 try {
-                    const data = await mergeFiles(buildUrl, "Granny", 2, "data");
-                    const wasm = await mergeFiles(buildUrl, "Granny", 2, "wasm");
-                    
-                    const dataUrl = URL.createObjectURL(new Blob([data]));
-                    const wasmUrl = URL.createObjectURL(new Blob([wasm]));
+                    const d = await getFiles(base, "Granny", 2, "data");
+                    const w = await getFiles(base, "Granny", 2, "wasm");
+                    const dU = URL.createObjectURL(new Blob([d]));
+                    const wU = URL.createObjectURL(new Blob([w]));
 
-                    const script = document.createElement("script");
-                    script.src = buildUrl + "/Granny.loader.js";
-                    script.onload = () => {
+                    const s = document.createElement("script");
+                    s.src = base + "/Granny.loader.js";
+                    s.onload = () => {
                         createUnityInstance(canvas, {
-                            dataUrl: dataUrl,
-                            frameworkUrl: buildUrl + "/Granny.framework.js",
-                            codeUrl: wasmUrl,
-                            streamingAssetsUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/StreamingAssets",
-                            companyName: "DVloper", productName: "Granny",
-                        }, (p) => {
-                            fill.style.width = (50 + (p * 50)) + "%";
-                            label.innerText = "Compiling WebGL: " + Math.round(p * 100) + "%";
-                        }).then(() => {
-                            document.getElementById('boot-screen').style.display = 'none';
-                        });
+                            dataUrl: dU, frameworkUrl: base + "/Granny.framework.js",
+                            codeUrl: wU, streamingAssetsUrl: base + "/StreamingAssets",
+                            companyName: "DV", productName: "Granny",
+                        }).then(() => { loader.style.display = "none"; });
                     };
-                    document.body.appendChild(script);
-                } catch (e) { label.innerText = "CRITICAL BOOT ERROR"; }
+                    document.body.appendChild(s);
+                } catch (e) { loader.innerText = "error"; }
             })();
         }
 
@@ -130,8 +105,8 @@
             document.getElementById('hub').style.display = 'none';
             document.querySelector('nav').style.display = 'none';
             document.getElementById('stage').style.display = 'block';
-            document.getElementById('boot-screen').style.display = 'none';
-            document.getElementById('mount').innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" style="width:100%;height:100%;border:none;"></iframe>`;
+            loader.style.display = "none";
+            document.getElementById('mount').innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" allow="autoplay; fullscreen"></iframe>`;
         }
     </script>
 </body>
