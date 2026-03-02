@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-    <title>My Game Collection</title>
+    <title>Game Stash</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -9,7 +9,6 @@
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --primary-blue: #007bff;
-            --text-main: #000000;
             --text-sub: #4b5563;
         }
 
@@ -23,7 +22,6 @@
             min-height: 100vh;
         }
 
-        /* Simple Navigation UI */
         nav {
             background: var(--card-bg);
             padding: 1rem 2rem;
@@ -43,41 +41,41 @@
             padding: 20px;
         }
 
-        /* Game Selection Grid */
         #hub-view {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
         }
 
         .game-card {
             background: var(--card-bg);
-            padding: 30px;
+            padding: 35px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             text-align: center;
-            transition: transform 0.2s;
         }
 
-        .game-card:hover { transform: translateY(-5px); }
-
-        .game-card h2 { margin-top: 0; font-size: 1.5rem; }
+        .game-card h2 { margin-top: 0; font-size: 1.6rem; margin-bottom: 10px; }
+        .game-card p { color: var(--text-sub); margin-bottom: 25px; }
 
         .btn-launch {
             background-color: var(--primary-blue);
             color: white;
             border: none;
-            padding: 10px 25px;
+            padding: 12px 25px;
             border-radius: 6px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
+            transition: background 0.2s;
         }
 
-        /* Hidden Game Player */
+        .btn-launch:hover { background-color: #0056b3; }
+
+        /* Fullscreen Game Player */
         #game-view {
             display: none;
             width: 100vw;
@@ -94,81 +92,115 @@
             top: 20px;
             left: 20px;
             z-index: 110;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 5px 15px;
-            border-radius: 4px;
+            background: white;
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        canvas { width: 100%; height: 100%; }
+        iframe, canvas { width: 100%; height: 100%; border: none; }
+        
+        #loading-msg {
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
     </style>
 </head>
 <body>
 
     <nav>
         <h1>Game Stash</h1>
-        <span style="color: var(--text-sub); font-size: 0.9rem;">2 Games Available</span>
+        <span style="color: var(--text-sub); font-size: 0.9rem;">2 Games Online</span>
     </nav>
 
-    <div class="container">
+    <div class="container" id="main-container">
         <div id="hub-view">
             <div class="game-card">
                 <h2>Granny</h2>
-                <p>The original horror experience.</p>
-                <button class="btn-launch" onclick="launchGame('granny')">Play Now</button>
+                <p>The original horror house.</p>
+                <button class="btn-launch" onclick="openGame('granny')">Click Me</button>
             </div>
 
             <div class="game-card">
-                <h2>New Game</h2>
-                <p>Ready to be added.</p>
-                <button class="btn-launch" onclick="launchGame('game2')" style="background-color: #6c757d;">Add Code</button>
+                <h2>Space Waves</h2>
+                <p>Fast-paced arcade action.</p>
+                <button class="btn-launch" onclick="openGame('spacewaves')">Click Me</button>
             </div>
         </div>
     </div>
 
     <div id="game-view">
-        <button id="back-btn" onclick="closeGame()">← Back to Hub</button>
-        <canvas id="unity-canvas"></canvas>
+        <button id="back-btn" onclick="location.reload()">← Exit Game</button>
+        <div id="loading-msg">INITIALIZING...</div>
+        <div id="game-content" style="width:100%; height:100%;"></div>
     </div>
 
     <script>
-        // MOCK SDK to prevent ReferenceErrors
+        // MOCK SDK to prevent the Yandex/YaGames error
         window.YaGames = { init: () => Promise.resolve({ deviceInfo: {type:'desktop'}, adv: {showFullscreenAdv:()=>{}} }) };
 
-        const hub = document.getElementById('hub-view');
-        const view = document.getElementById('game-view');
-        const canvas = document.querySelector("#unity-canvas");
-
-        function launchGame(gameId) {
-            hub.parentElement.style.display = 'none';
+        function openGame(type) {
+            document.getElementById('main-container').style.display = 'none';
             document.querySelector('nav').style.display = 'none';
+            const view = document.getElementById('game-view');
+            const container = document.getElementById('game-content');
             view.style.display = 'block';
 
-            if (gameId === 'granny') {
-                loadGranny();
-            } else {
-                alert("Paste your second game's loading script here!");
+            if (type === 'granny') {
+                const canvas = document.createElement('canvas');
+                canvas.id = "unity-canvas";
+                container.appendChild(canvas);
+                loadGranny(canvas);
+            } else if (type === 'spacewaves') {
+                document.getElementById('loading-msg').style.display = 'none';
+                container.innerHTML = `<iframe src="https://space-waves.co/game/space-waves/" allowfullscreen></iframe>`;
             }
         }
 
-        function closeGame() {
-            location.reload(); // Simplest way to stop the game and go back
-        }
-
-        async function loadGranny() {
+        async function loadGranny(canvas) {
             const buildUrl = "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/Build";
             
-            async function merge(prefix, parts, ext) {
-                const b = [];
-                for (let i=1; i<=parts; i++) {
+            // Re-written merge function to be more reliable
+            async function fetchAndMerge(prefix, parts, ext) {
+                const chunks = [];
+                for (let i = 1; i <= parts; i++) {
                     const r = await fetch(`${buildUrl}/${prefix}_part${i}.${ext}`);
-                    b.push(await r.arrayBuffer());
+                    if (!r.ok) throw new Error("File missing");
+                    chunks.push(await r.arrayBuffer());
                 }
-                const c = new Uint8Array(b.reduce((a,v)=>a+v.byteLength, 0));
-                let o=0; b.forEach(v=>{ c.set(new Uint8Array(v),o); o+=v.byteLength; });
-                return c;
+                const total = chunks.reduce((acc, c) => acc + c.byteLength, 0);
+                const combined = new Uint8Array(total);
+                let offset = 0;
+                chunks.forEach(c => {
+                    combined.set(new Uint8Array(c), offset);
+                    offset += c.byteLength;
+                });
+                return combined;
             }
 
-            const
+            try {
+                const [dataBuf, wasmBuf] = await Promise.all([
+                    fetchAndMerge("Granny", 2, "data"),
+                    fetchAndMerge("Granny", 2, "wasm")
+                ]);
+
+                const config = {
+                    dataUrl: URL.createObjectURL(new Blob([dataBuf])),
+                    frameworkUrl: buildUrl + "/Granny.framework.js",
+                    codeUrl: URL.createObjectURL(new Blob([wasmBuf])),
+                    streamingAssetsUrl: "https://cdn.jsdelivr.net/gh/gru6nny/ohd@main/StreamingAssets",
+                    companyName: "DVloper",
+                    productName: "Granny",
+                };
+
+                const loader = document.createElement("script");
+                loader.src = buildUrl + "/Granny.loader.js";
