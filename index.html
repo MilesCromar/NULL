@@ -5,48 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NULL | Archive</title>
     <style>
-        /* --- Dark & Muted Theme --- */
+        /* --- High Visibility Dark Theme --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
         }
 
         body {
-            background: radial-gradient(circle at center, #111111 0%, #050505 100%);
+            /* Brighter background: Deep Gray to Black */
+            background: radial-gradient(circle at center, #222222 0%, #0a0a0a 100%);
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #d1d1d1;
+            color: #eeeeee; /* Brighter default text */
             overflow: hidden;
         }
 
         .header-text {
             text-align: center;
-            margin-bottom: 80px;
+            margin-bottom: 70px;
         }
 
         .header-text h1 {
-            font-size: 5rem;
+            font-size: 5.5rem;
             letter-spacing: 25px;
             text-transform: uppercase;
             font-weight: 900;
-            color: #ffffff;
-            opacity: 0.8;
-            margin-left: 25px; /* Centers the text properly with letter spacing */
+            color: #ffffff; /* Pure white for maximum contrast */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            margin-left: 25px;
         }
 
         .header-text p {
-            color: #222;
+            color: #666; /* Brighter subtext */
             letter-spacing: 8px;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             margin-top: 5px;
+            font-weight: bold;
         }
 
-        /* --- Card Layout --- */
+        /* --- Visible Cards --- */
         .card-container {
             display: flex;
             gap: 40px;
@@ -54,11 +56,11 @@
         }
 
         .game-card {
-            background: rgba(255, 255, 255, 0.01);
-            width: 280px;
-            height: 380px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05); /* Increased opacity */
+            width: 300px;
+            height: 400px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Stronger border to see the tilt */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -66,66 +68,66 @@
             padding: 30px;
             cursor: pointer;
             transform-style: preserve-3d;
-            transition: border-color 0.8s ease, background 0.8s ease;
+            transition: border-color 0.5s ease, background 0.5s ease, box-shadow 0.5s ease;
         }
 
         .game-card:hover {
-            background: rgba(0, 31, 63, 0.05);
-            border-color: rgba(0, 116, 217, 0.1);
+            background: rgba(0, 31, 63, 0.3); /* Stronger Navy tint */
+            border-color: #0074D9;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
         }
 
         .card-content {
-            transform: translateZ(15px); 
+            transform: translateZ(20px); 
             text-align: center;
         }
 
         .card-content h2 {
-            font-size: 1.8rem;
-            color: #444; 
+            font-size: 2.2rem;
+            color: #cccccc; /* Light Gray */
             letter-spacing: 3px;
             text-transform: uppercase;
-            transition: color 0.6s ease;
+            transition: color 0.4s ease;
         }
 
         .card-content .sub-text {
             display: block;
-            font-size: 0.7rem;
-            color: #222;
+            font-size: 0.9rem;
+            color: #888; /* Mid Gray */
             letter-spacing: 2px;
-            margin-top: 5px;
-            margin-bottom: 30px;
-            transition: color 0.6s ease;
+            margin-top: 8px;
+            margin-bottom: 35px;
+            transition: color 0.4s ease;
         }
 
-        .game-card:hover h2 { color: #fff; }
-        .game-card:hover .sub-text { color: #555; }
+        .game-card:hover h2 { color: #ffffff; }
+        .game-card:hover .sub-text { color: #0074D9; } /* Blue accent subtext on hover */
 
-        /* --- Reactive Button --- */
+        /* --- The Button (Lights up) --- */
         .play-btn {
-            background: transparent;
-            color: #333;
-            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaaaaa;
+            padding: 12px 30px;
             text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 4px;
-            transition: all 0.4s ease;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
 
-        /* Light up effect on hover */
         .play-btn:hover {
             color: #ffffff;
             border-color: #0074D9;
-            background: rgba(0, 116, 217, 0.4); /* Stronger Navy Glow */
-            box-shadow: 0 0 15px rgba(0, 116, 217, 0.4);
-            text-shadow: 0 0 5px #fff;
+            background: #001f3f; /* Deep Navy Blue */
+            box-shadow: 0 0 20px rgba(0, 116, 217, 0.6); /* Glowing edge */
+            transform: scale(1.05);
         }
 
         .locked {
-            opacity: 0.1;
-            cursor: default;
+            opacity: 0.3;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -140,16 +142,16 @@
         <div class="game-card">
             <div class="card-content">
                 <h2>Granny</h2>
-                <span class="sub-text">Chapter One</span>
+                <span class="sub-text">CHAPTER ONE</span>
                 <a href="#" class="play-btn">LAUNCH</a>
             </div>
         </div>
 
         <div class="game-card locked">
             <div class="card-content">
-                <h2>Void</h2>
-                <span class="sub-text">Locked</span>
-                <a href="#" class="play-btn">NULL</a>
+                <h2>VOID</h2>
+                <span class="sub-text">ENCRYPTED</span>
+                <a href="#" class="play-btn">LOCKED</a>
             </div>
         </div>
     </div>
@@ -157,11 +159,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
     <script>
         VanillaTilt.init(document.querySelectorAll(".game-card"), {
-            reverse: true,      // TILTS AWAY FROM MOUSE
-            max: 2,             // VERY SMALL TILT
-            speed: 3000,        // VERY SLOW
+            reverse: true,      // TILTS AWAY FROM CURSOR
+            max: 3,             // Slightly more tilt than before so it's visible
+            speed: 2000,        // Smooth but responsive
             glare: true,
-            "max-glare": 0.1,
+            "max-glare": 0.2,   // Brighter reflection
             scale: 1
         });
     </script>
