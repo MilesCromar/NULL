@@ -129,11 +129,6 @@
             box-shadow: 0 0 20px rgba(0, 116, 217, 0.6);
         }
 
-        .locked {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
         /* --- Game Player Overlay --- */
         #game-container {
             position: fixed;
@@ -203,11 +198,11 @@
                 </div>
             </div>
 
-            <div class="game-card locked">
+            <div class="game-card" onclick="launchGame('spacewaves.html')">
                 <div class="card-content">
-                    <h2>VOID</h2>
-                    <span class="sub-text">ENCRYPTED</span>
-                    <div class="play-btn">LOCKED</div>
+                    <h2>Space Waves</h2>
+                    <span class="sub-text">NEON DRIFT</span>
+                    <div class="play-btn">LAUNCH</div>
                 </div>
             </div>
         </div>
@@ -249,7 +244,7 @@
 
             menu.classList.remove('menu-hidden');
             container.style.display = 'none';
-            frame.src = ''; // Stops the Unity game processes/sound
+            frame.src = ''; 
         }
     </script>
 </body>
