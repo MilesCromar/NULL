@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Granny | Escape</title>
     <style>
-        /* --- Dark & Muted Theme --- */
+        /* --- Dark, Nonchalant Theme --- */
         * {
             margin: 0;
             padding: 0;
@@ -45,7 +45,7 @@
             margin-top: 10px;
         }
 
-        /* --- Smooth Tilt Cards --- */
+        /* --- Reactive Cards --- */
         .card-container {
             display: flex;
             gap: 40px;
@@ -65,9 +65,9 @@
             padding: 30px;
             cursor: pointer;
             
-            /* High-end 3D Settings */
+            /* 3D Depth */
             transform-style: preserve-3d;
-            transition: border-color 0.5s ease, background 0.5s ease;
+            transition: border-color 0.8s ease, background 0.8s ease;
         }
 
         .game-card:hover {
@@ -75,46 +75,45 @@
             border-color: rgba(0, 116, 217, 0.2);
         }
 
-        /* Content "floating" inside the tilt */
         .card-content {
-            transform: translateZ(30px); /* Subtly pops forward */
+            transform: translateZ(20px); /* Minimal pop out */
             text-align: center;
         }
 
         .card-content h2 {
             font-size: 1.6rem;
             margin-bottom: 25px;
-            color: #666;
+            color: #555; /* Very muted gray */
             letter-spacing: 2px;
-            transition: color 0.5s ease;
+            transition: color 0.6s ease;
         }
 
         .game-card:hover h2 {
             color: #ffffff;
         }
 
-        /* --- Nonchalant Buttons --- */
+        /* --- Simple Ghost Buttons --- */
         .play-btn {
             background: transparent;
-            color: #444;
+            color: #333;
             padding: 10px 24px;
             text-decoration: none;
             font-size: 0.8rem;
             font-weight: 600;
             letter-spacing: 1px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 6px;
-            transition: all 0.5s ease;
+            transition: all 0.6s ease;
         }
 
         .game-card:hover .play-btn {
             color: #0074D9;
             border-color: #0074D9;
-            background: rgba(0, 116, 217, 0.05);
+            background: rgba(0, 116, 217, 0.03);
         }
 
         .locked {
-            opacity: 0.25;
+            opacity: 0.2;
             cursor: default;
         }
     </style>
@@ -145,12 +144,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
     <script>
         VanillaTilt.init(document.querySelectorAll(".game-card"), {
-            max: 5,           // Very low tilt (prevents startling)
-            speed: 2000,      // Very slow transition (slow motion feel)
-            glare: true,      // Keeps the "reflective" look
-            "max-glare": 0.15, // Muted glare
-            perspective: 1000,
-            scale: 1.02       // Tiny bit of zoom on hover
+            reverse: true,    // This makes it tilt AWAY from the mouse
+            max: 3,           // Very tiny tilt angle (3 degrees)
+            speed: 3000,      // Extremely slow movement (very chill)
+            glare: true,
+            "max-glare": 0.1, // Very subtle light reflection
+            scale: 1.01       // Almost zero zoom
         });
     </script>
 
