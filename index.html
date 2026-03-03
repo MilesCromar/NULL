@@ -57,6 +57,7 @@
             font-weight: bold;
         }
 
+        /* --- Visible Cards --- */
         .card-container {
             display: flex;
             gap: 40px;
@@ -106,6 +107,7 @@
             margin-bottom: 35px;
         }
 
+        /* --- The Button (Lights up) --- */
         .play-btn {
             background: rgba(255, 255, 255, 0.05);
             color: #aaaaaa;
@@ -120,12 +122,11 @@
             display: inline-block;
         }
 
-        .play-btn:hover {
+        .game-card:hover .play-btn {
             color: #ffffff;
             border-color: #0074D9;
             background: #001f3f;
             box-shadow: 0 0 20px rgba(0, 116, 217, 0.6);
-            transform: scale(1.05);
         }
 
         .locked {
@@ -141,7 +142,7 @@
             width: 100%;
             height: 100%;
             background: #000;
-            display: none; /* Hidden by default */
+            display: none;
             flex-direction: column;
             z-index: 100;
         }
@@ -152,9 +153,9 @@
             border: none;
         }
 
-        /* --- Back Button (Nonchalant) --- */
+        /* --- Back Button --- */
         .back-bar {
-            background: rgba(10, 10, 10, 0.9);
+            background: #0a0a0a;
             padding: 10px 20px;
             display: flex;
             align-items: center;
@@ -180,7 +181,6 @@
             background: rgba(0, 116, 217, 0.1);
         }
 
-        /* Hide the menu when game is active */
         .menu-hidden {
             display: none !important;
         }
@@ -195,7 +195,7 @@
         </div>
 
         <div class="card-container">
-            <div class="game-card" onclick="launchGame('https://example-game-link.com')">
+            <div class="game-card" onclick="launchGame('granny.html')">
                 <div class="card-content">
                     <h2>Granny</h2>
                     <span class="sub-text">CHAPTER ONE</span>
@@ -215,14 +215,14 @@
 
     <div id="game-container">
         <div class="back-bar">
-            <a href="#" class="back-btn" onclick="closeGame()">← Back to Archive</a>
+            <a href="javascript:void(0)" class="back-btn" onclick="closeGame()">← Back to Archive</a>
         </div>
         <iframe id="game-frame" src=""></iframe>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
     <script>
-        // Initialize Tilt
+        // Tilt Effect Configuration
         VanillaTilt.init(document.querySelectorAll(".game-card"), {
             reverse: true,
             max: 3,
@@ -232,34 +232,25 @@
             scale: 1
         });
 
-        // Launch Game Function
         function launchGame(url) {
             const menu = document.getElementById('menu-ui');
             const container = document.getElementById('game-container');
             const frame = document.getElementById('game-frame');
 
-            // 1. Hide Menu
             menu.classList.add('menu-hidden');
-            
-            // 2. Show Game Container and set URL
             container.style.display = 'flex';
-            frame.src = url; // Replace the parameter with the actual game URL
+            frame.src = url; 
         }
 
-        // Close Game Function
         function closeGame() {
             const menu = document.getElementById('menu-ui');
             const container = document.getElementById('game-container');
             const frame = document.getElementById('game-frame');
 
-            // 1. Show Menu
             menu.classList.remove('menu-hidden');
-            
-            // 2. Hide Container and clear URL (stops game audio)
             container.style.display = 'none';
-            frame.src = '';
+            frame.src = ''; // Stops the Unity game processes/sound
         }
     </script>
-
 </body>
 </html>
