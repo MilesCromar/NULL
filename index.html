@@ -14,7 +14,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            cursor: default; /* Crosshair removed */
+            cursor: default; 
         }
 
         body {
@@ -63,7 +63,6 @@
             font-weight: bold;
         }
 
-        /* --- Updated Card Container for 3 Cards --- */
         .card-container {
             display: flex;
             gap: 25px;
@@ -95,7 +94,6 @@
         .card-content {
             transform: translateZ(20px); 
             text-align: center;
-            pointer-events: none;
         }
 
         .card-content h2 {
@@ -105,12 +103,37 @@
             text-transform: uppercase;
         }
 
+        /* Chapter Selector Buttons */
+        .chapter-selection {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .chap-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #666;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .chap-btn.active {
+            border-color: #0074D9;
+            color: #fff;
+            background: rgba(0, 116, 217, 0.2);
+        }
+
         .card-content .sub-text {
             display: block;
             font-size: 0.8rem;
             color: #888;
             letter-spacing: 2px;
-            margin-top: 8px;
             margin-bottom: 30px;
         }
 
@@ -192,26 +215,23 @@
         </div>
 
         <div class="card-container">
-            <div class="game-card" onclick="launchGame('granny.html')">
+            <div class="game-card" id="granny-card">
                 <div class="card-content">
                     <h2>Granny</h2>
-                    <span class="sub-text">CHAPTER ONE</span>
-                    <div class="play-btn">LAUNCH</div>
+                    <div class="chapter-selection" onclick="event.stopPropagation()">
+                        <button class="chap-btn active" onclick="selectChapter(1, this)">CH 1</button>
+                        <button class="chap-btn" onclick="selectChapter(2, this)">CH 2</button>
+                    </div>
+                    <span class="sub-text" id="chapter-label">CHAPTER ONE</span>
+                    <div class="play-btn" onclick="launchGranny()">LAUNCH</div>
                 </div>
             </div>
 
             <div class="game-card" onclick="launchGame('spacewaves.html')">
-                <div class="card-content">
+                <div class="card-content" style="pointer-events: none;">
                     <h2>Space Waves</h2>
+                    <br>
                     <span class="sub-text">GEOMETRY GAME</span>
-                    <div class="play-btn">LAUNCH</div>
-                </div>
-            </div>
-
-            <div class="game-card" onclick="launchGame('granny2.html')">
-                <div class="card-content">
-                    <h2>Granny 2</h2>
-                    <span class="sub-text">CHAPTER TWO</span>
                     <div class="play-btn">LAUNCH</div>
                 </div>
             </div>
@@ -235,6 +255,20 @@
             "max-glare": 0.2,
             scale: 1
         });
+
+        let selectedChapter = 1;
+
+        function selectChapter(chap, btn) {
+            selectedChapter = chap;
+            document.querySelectorAll('.chap-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('chapter-label').innerText = chap === 1 ? "CHAPTER ONE" : "CHAPTER TWO";
+        }
+
+        function launchGranny() {
+            const url = selectedChapter === 1 ? 'granny.html' : 'granny2.html';
+            launchGame(url);
+        }
 
         function launchGame(url) {
             document.getElementById('menu-ui').classList.add('menu-hidden');
