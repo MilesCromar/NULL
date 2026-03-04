@@ -2,32 +2,65 @@
 <html lang="en-us">
 <head>
     <meta charset="utf-8">
-    <title>Granny 2 | Full Bypass</title>
+    <title>NULL | Granny 2</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; font-family: sans-serif; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background-color: #000; 
+            font-family: 'Inter', sans-serif;
+        }
+
         #unity-container { position: absolute; width: 100%; height: 100%; }
         #unity-canvas { width: 100%; height: 100%; background: #000; }
-        #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #444; }
+
+        /* Mimicking the old structure but with a clean look */
+        #unity-loading-bar { 
+            position: absolute; left: 50%; top: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 300px; text-align: center; 
+        }
+
+        #unity-logo { 
+            font-weight: 900; font-size: 2rem; letter-spacing: 10px; 
+            color: #fff; margin-bottom: 20px; opacity: 0.5;
+        }
+
+        #unity-progress-bar-empty { 
+            width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); 
+            margin-top: 10px; 
+        }
+
+        #unity-progress-bar-full { 
+            width: 0%; height: 100%; background: #fff; 
+            box-shadow: 0 0 10px #fff; transition: width 0.2s;
+        }
     </style>
 </head>
 <body>
 
-    <div id="status">Bypassing Checks...</div>
     <div id="unity-container">
         <canvas id="unity-canvas"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo">NULL</div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
     </div>
 
     <script>
-        window.SDK_OPTIONS = { gameId: "clean_version", onEvent: () => {} };
+        // Mock SDKs to bypass ad checks
         window.YaGames = { init: () => Promise.resolve({ getPlayer: () => Promise.resolve({}) }) };
-        window.sdk = { showBanner: () => console.log("Ad Blocked") };
-        
+
+        const container = document.querySelector("#unity-container");
         const canvas = document.querySelector("#unity-canvas");
-        const status = document.querySelector("#status");
+        const loadingBar = document.querySelector("#unity-loading-bar");
+        const progressBarFull = document.querySelector("#unity-progress-bar-full");
 
         async function mergeFiles(parts) {
             const blobs = await Promise.all(parts.map(async (p) => {
                 const r = await fetch(p);
+                if (!r.ok) throw new Error(`Failed to fetch ${p}`);
                 return await r.blob();
             }));
             return URL.createObjectURL(new Blob(blobs));
@@ -35,10 +68,11 @@
 
         async function start() {
             const build = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
+            
             try {
-                // Ensure these filenames match the repository exactly
+                // Fetching the large data and wasm files
                 const [dataUrl, wasmUrl] = await Promise.all([
-                    mergeFiles([`${build}/Granny 2_web.data`]),
+                    mergeFiles([`${build}/Granny 2_web.data`]), 
                     mergeFiles([`${build}/Granny 2_web.wasm`])
                 ]);
 
@@ -50,17 +84,21 @@
                         frameworkUrl: `${build}/Granny 2_web.framework.js`,
                         codeUrl: wasmUrl,
                         streamingAssetsUrl: "StreamingAssets",
-                        companyName: "DefaultCompany",
+                        companyName: "NULL",
                         productName: "Granny 2",
-                        productVersion: "1.0",
-                    }).then(() => {
-                        status.style.display = "none";
+                    }, (progress) => {
+                        // This updates the bar as it loads
+                        progressBarFull.style.width = 100 * progress + "%";
+                    }).then((unityInstance) => {
+                        loadingBar.style.display = "none";
+                    }).catch((message) => {
+                        alert(message);
                     });
                 };
                 document.body.appendChild(script);
             } catch (e) {
-                status.innerText = "Error loading archive files.";
-                console.error(e);
+                console.error("Archive retrieval failed:", e);
+                document.getElementById('unity-logo').innerText = "LOAD ERROR";
             }
         }
 
