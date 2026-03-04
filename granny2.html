@@ -7,8 +7,8 @@
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Inter', sans-serif; }
         #unity-container { position: absolute; width: 100%; height: 100%; }
         #unity-canvas { width: 100%; height: 100%; background: #000; }
-        #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10; }
-        .loader-title { color: #fff; font-weight: 900; font-size: 2.5rem; letter-spacing: 15px; margin-bottom: 20px; opacity: 0.9; }
+        #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .loader-title { color: #fff; font-weight: 900; font-size: 2.5rem; letter-spacing: 15px; margin-bottom: 20px; }
         #unity-progress-bar-empty { width: 300px; height: 2px; background: rgba(255, 255, 255, 0.1); margin: 0 auto; }
         #unity-progress-bar-full { width: 0%; height: 100%; background: #fff; box-shadow: 0 0 15px #fff; }
         #status-text { color: #555; font-size: 0.7rem; letter-spacing: 3px; margin-top: 15px; text-transform: uppercase; }
@@ -16,51 +16,50 @@
 </head>
 <body>
     <div id="unity-container">
-        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        <canvas id="unity-canvas"></canvas>
         <div id="unity-loading-bar">
             <div class="loader-title">NULL</div>
             <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
-            <div id="status-text">BYPASSING SECURITY...</div>
+            <div id="status-text">FORCING DATA STREAM...</div>
         </div>
     </div>
 
     <script>
-        // Use a CORS proxy to prevent "Load Error"
-        const proxy = "https://corsproxy.io/?";
-        const buildUrl = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
-        
-        // Block annoying SDK popups
+        // Clean environment
         window.YaGames = { init: () => Promise.resolve({ getPlayer: () => Promise.resolve({}) }) };
 
+        const buildUrl = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
         const canvas = document.querySelector("#unity-canvas");
         const loadingBar = document.querySelector("#unity-loading-bar");
         const progressBarFull = document.querySelector("#unity-progress-bar-full");
         const statusText = document.querySelector("#status-text");
 
-        const loaderScript = document.createElement("script");
-        // Proxy the loader too
-        loaderScript.src = proxy + encodeURIComponent(buildUrl + "/Granny 2_web.loader.js");
+        const script = document.createElement("script");
+        script.src = buildUrl + "/Granny 2_web.loader.js";
 
-        loaderScript.onload = () => {
+        script.onload = () => {
             createUnityInstance(canvas, {
-                // Every file is wrapped in a proxy to ensure it isn't blocked
-                dataUrl: proxy + encodeURIComponent(buildUrl + "/Granny 2_web.data"),
-                frameworkUrl: proxy + encodeURIComponent(buildUrl + "/Granny 2_web.framework.js"),
-                codeUrl: proxy + encodeURIComponent(buildUrl + "/Granny 2_web.wasm"),
+                dataUrl: buildUrl + "/Granny 2_web.data",
+                frameworkUrl: buildUrl + "/Granny 2_web.framework.js",
+                codeUrl: buildUrl + "/Granny 2_web.wasm",
                 streamingAssetsUrl: "StreamingAssets",
                 companyName: "NULL",
                 productName: "Granny 2",
+                productVersion: "1.0",
+                // CRITICAL FIX: Tells Unity NOT to look for compressed versions
+                matchWebGLToCanvasSize: true,
+                devicePixelRatio: 1,
             }, (progress) => {
                 progressBarFull.style.width = (100 * progress) + "%";
             }).then(() => {
                 loadingBar.style.display = "none";
             }).catch((err) => {
-                statusText.innerText = "SYSTEM REJECTED CONNECTION";
                 console.error(err);
+                statusText.innerText = "STREAM INTERRUPTED";
             });
         };
 
-        document.body.appendChild(loaderScript);
+        document.body.appendChild(script);
     </script>
 </body>
 </html>
