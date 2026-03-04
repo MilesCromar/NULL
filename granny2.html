@@ -2,7 +2,7 @@
 <html lang="en-us">
 <head>
     <meta charset="utf-8">
-    <title>NULL | Granny 2</title>
+    <title>NULL | Archive</title>
     <style>
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
@@ -13,96 +13,100 @@
         #unity-container { position: absolute; width: 100%; height: 100%; }
         #unity-canvas { width: 100%; height: 100%; background: #000; }
 
-        /* Mimicking the old structure but with a clean look */
+        /* The Loading Screen - Mimics the original logic but looks clean */
         #unity-loading-bar { 
             position: absolute; left: 50%; top: 50%; 
             transform: translate(-50%, -50%); 
-            width: 300px; text-align: center; 
+            display: block; z-index: 10;
         }
 
-        #unity-logo { 
-            font-weight: 900; font-size: 2rem; letter-spacing: 10px; 
-            color: #fff; margin-bottom: 20px; opacity: 0.5;
+        .loader-title {
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 2.5rem;
+            letter-spacing: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            text-transform: uppercase;
         }
 
         #unity-progress-bar-empty { 
-            width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); 
-            margin-top: 10px; 
+            width: 300px; height: 4px; background: rgba(255, 255, 255, 0.1); 
+            border-radius: 2px; overflow: hidden; margin: 0 auto;
         }
 
         #unity-progress-bar-full { 
             width: 0%; height: 100%; background: #fff; 
-            box-shadow: 0 0 10px #fff; transition: width 0.2s;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            transition: width 0.3s;
+        }
+
+        #status-text {
+            color: #444;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-top: 15px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
     <div id="unity-container">
-        <canvas id="unity-canvas"></canvas>
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        
         <div id="unity-loading-bar">
-            <div id="unity-logo">NULL</div>
+            <div class="loader-title">NULL</div>
             <div id="unity-progress-bar-empty">
                 <div id="unity-progress-bar-full"></div>
             </div>
+            <div id="status-text">Synchronizing Data...</div>
         </div>
     </div>
 
     <script>
-        // Mock SDKs to bypass ad checks
+        // Bypass SDK checks so the game doesn't hang looking for ads
         window.YaGames = { init: () => Promise.resolve({ getPlayer: () => Promise.resolve({}) }) };
+        window.SDK_OPTIONS = { gameId: "clean", onEvent: () => {} };
 
-        const container = document.querySelector("#unity-container");
+        const buildUrl = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
+        const loaderUrl = buildUrl + "/Granny 2_web.loader.js";
+        
+        const config = {
+            dataUrl: buildUrl + "/Granny 2_web.data",
+            frameworkUrl: buildUrl + "/Granny 2_web.framework.js",
+            codeUrl: buildUrl + "/Granny 2_web.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "NULL",
+            productName: "Granny 2",
+            productVersion: "1.0",
+        };
+
         const canvas = document.querySelector("#unity-canvas");
         const loadingBar = document.querySelector("#unity-loading-bar");
         const progressBarFull = document.querySelector("#unity-progress-bar-full");
+        const statusText = document.querySelector("#status-text");
 
-        async function mergeFiles(parts) {
-            const blobs = await Promise.all(parts.map(async (p) => {
-                const r = await fetch(p);
-                if (!r.ok) throw new Error(`Failed to fetch ${p}`);
-                return await r.blob();
-            }));
-            return URL.createObjectURL(new Blob(blobs));
-        }
+        const script = document.createElement("script");
+        script.src = loaderUrl;
+        
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                // Update the bar percentage
+                progressBarFull.style.width = (100 * progress) + "%";
+                if(progress > 0.9) statusText.innerText = "Finalizing Archive...";
+            }).then((unityInstance) => {
+                // Hide loading UI when finished
+                loadingBar.style.display = "none";
+            }).catch((message) => {
+                statusText.innerText = "DATA CORRUPTION DETECTED";
+                console.error(message);
+            });
+        };
 
-        async function start() {
-            const build = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
-            
-            try {
-                // Fetching the large data and wasm files
-                const [dataUrl, wasmUrl] = await Promise.all([
-                    mergeFiles([`${build}/Granny 2_web.data`]), 
-                    mergeFiles([`${build}/Granny 2_web.wasm`])
-                ]);
-
-                const script = document.createElement("script");
-                script.src = `${build}/Granny 2_web.loader.js`;
-                script.onload = () => {
-                    createUnityInstance(canvas, {
-                        dataUrl: dataUrl,
-                        frameworkUrl: `${build}/Granny 2_web.framework.js`,
-                        codeUrl: wasmUrl,
-                        streamingAssetsUrl: "StreamingAssets",
-                        companyName: "NULL",
-                        productName: "Granny 2",
-                    }, (progress) => {
-                        // This updates the bar as it loads
-                        progressBarFull.style.width = 100 * progress + "%";
-                    }).then((unityInstance) => {
-                        loadingBar.style.display = "none";
-                    }).catch((message) => {
-                        alert(message);
-                    });
-                };
-                document.body.appendChild(script);
-            } catch (e) {
-                console.error("Archive retrieval failed:", e);
-                document.getElementById('unity-logo').innerText = "LOAD ERROR";
-            }
-        }
-
-        start();
+        document.body.appendChild(script);
     </script>
 </body>
 </html>
