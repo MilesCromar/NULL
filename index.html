@@ -1,30 +1,74 @@
-<script>
-    // This creates the missing "spark" the game needs to start
-    window.ysdk = {
-        getLanguage: () => 'en',
-        features: { LoadingProgress: { set: () => {} } },
-        stats: { isCoreLoaded: () => true },
-        adv: { showFullscreenAdv: (c) => { if(c && c.callbacks) c.callbacks.onClose(); } }
-    };
-    window.YaGames = { init: () => Promise.resolve(window.ysdk) };
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NULL | Archive</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 font-family=%22Inter, Arial, sans-serif%22 font-weight=%22900%22 fill=%22white%22>N</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }
+        body { background: radial-gradient(circle at center, #222222 0%, #0a0a0a 100%); height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #eeeeee; overflow: hidden; }
+        #menu-ui { text-align: center; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        .header-text { text-align: center; margin-bottom: 70px; }
+        .header-text h1 { font-size: 5.5rem; letter-spacing: 25px; text-transform: uppercase; font-weight: 900; color: #ffffff; margin-left: 25px; }
+        .header-text p { color: #666; letter-spacing: 8px; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
+        .card-container { display: flex; gap: 40px; perspective: 1000px; }
+        .game-card { background: rgba(255, 255, 255, 0.05); width: 280px; height: 400px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; cursor: pointer; transition: 0.5s; }
+        .game-card:hover { background: rgba(0, 31, 63, 0.3); border-color: #0074D9; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); }
+        .card-content h2 { font-size: 2.2rem; color: #cccccc; letter-spacing: 3px; text-transform: uppercase; }
+        .sub-text { display: block; font-size: 0.9rem; color: #888; letter-spacing: 2px; margin-top: 8px; margin-bottom: 35px; }
+        .play-btn { background: rgba(255, 255, 255, 0.05); color: #aaaaaa; padding: 12px 30px; font-size: 0.9rem; font-weight: 800; letter-spacing: 3px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; }
+        #game-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; z-index: 100; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .back-bar { background: #0a0a0a; padding: 10px 20px; display: flex; align-items: center; border-bottom: 1px solid #222; }
+        .back-btn { color: #666; font-size: 0.7rem; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; padding: 5px 15px; border: 1px solid #333; border-radius: 4px; cursor: pointer; }
+        .menu-hidden { display: none !important; }
+    </style>
+</head>
+<body>
 
-<script>
-    function launchGame(url) {
-        document.getElementById('menu-ui').classList.add('menu-hidden');
-        document.getElementById('game-container').style.display = 'flex';
-        const frame = document.getElementById('game-frame');
-        frame.src = url; 
+    <div id="menu-ui">
+        <div class="header-text"><h1>NULL</h1><p>SYSTEM ARCHIVE</p></div>
+        <div class="card-container">
+            <div class="game-card" onclick="launchGame('granny.html')">
+                <div class="card-content"><h2>Granny</h2><span class="sub-text">CHAPTER ONE</span><div class="play-btn">LAUNCH</div></div>
+            </div>
+            <div class="game-card" onclick="launchGame('spacewaves.html')">
+                <div class="card-content"><h2>Space Waves</h2><span class="sub-text">GEOMETRY</span><div class="play-btn">LAUNCH</div></div>
+            </div>
+            <div class="game-card" onclick="launchGame('granny2.html')">
+                <div class="card-content"><h2>Granny 2</h2><span class="sub-text">CHAPTER TWO</span><div class="play-btn">LAUNCH</div></div>
+            </div>
+        </div>
+    </div>
 
-        // Forced injection: This pushes the "fake" SDK into the game file as it loads
-        frame.onload = function() {
-            try {
-                frame.contentWindow.ysdk = window.ysdk;
-                frame.contentWindow.YaGames = window.YaGames;
-            } catch(e) { 
-                console.warn("Security blocked direct injection. Relying on the game-file script."); 
-            }
+    <div id="game-container">
+        <div class="back-bar"><div class="back-btn" onclick="closeGame()">← Back to Archive</div></div>
+        <iframe id="game-frame" src=""></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    <script>
+        // CRITICAL: Define the ysdk object here so the granny.html file can find it
+        window.ysdk = {
+            getLanguage: () => 'en',
+            features: { LoadingProgress: { set: () => {} } },
+            stats: { isCoreLoaded: () => true }
         };
-    }
-    // ... keep your closeGame() and VanillaTilt code ...
-</script>
+
+        VanillaTilt.init(document.querySelectorAll(".game-card"), { reverse: true, max: 3, speed: 2000, glare: true, "max-glare": 0.2 });
+
+        function launchGame(url) {
+            document.getElementById('menu-ui').classList.add('menu-hidden');
+            document.getElementById('game-container').style.display = 'flex';
+            document.getElementById('game-frame').src = url; 
+        }
+
+        function closeGame() {
+            document.getElementById('menu-ui').classList.remove('menu-hidden');
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('game-frame').src = ''; 
+        }
+    </script>
+</body>
+</html>
