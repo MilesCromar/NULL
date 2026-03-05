@@ -11,15 +11,27 @@
             padding: 0;
             box-sizing: border-box;
         }
+        /* Forces the background to stay black no matter what */
         html, body {
             width: 100%;
             height: 100%;
-            background: #000;
-            overflow: hidden; /* Prevents scrollbars in the archive iframe */
+            background-color: #000000 !important;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #player {
+        #player-container {
             width: 100vw;
             height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
             display: block;
         }
     </style>
@@ -36,10 +48,12 @@
             container.appendChild(player);
             player.id = "player";
             
-            // Loading the PvZ SWF from your source
             player.load({
                 url: "https://cdn.jsdelivr.net/gh/sasa24s/Sphere-compile@95d1d98dc38a920d02e6bbcf61620501b2bacfcb/tables/pvz_9_15.swf",
-                allowScriptAccess: true
+                allowScriptAccess: true,
+                // This ensures the game stays proportional and centers itself
+                scale: 'showAll',
+                letterbox: 'on'
             });
         });
     </script>
