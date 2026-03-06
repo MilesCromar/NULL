@@ -105,6 +105,10 @@
             border-bottom: 1px solid #111; 
         }
 
+        /* NEW: Hide the bar when in fullscreen mode */
+        #game-container:fullscreen .back-bar { display: none; }
+        #game-container:fullscreen iframe { height: 100vh; }
+
         .back-bar .btn-top-left {
             position: absolute;
             top: 20px; left: 20px;
