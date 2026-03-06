@@ -93,7 +93,6 @@
             border-bottom: 1px solid #111; 
         }
 
-        /* The button inside the game view stays visible */
         .back-bar .btn-top-left {
             position: absolute;
             top: 20px; left: 20px;
@@ -134,6 +133,14 @@
                 <div class="launch-btn">LAUNCH</div>
             </div>
         </div>
+
+        <div class="game-card" onclick="launchGame('driftboss.html')">
+            <div class="card-content">
+                <h2>Drift Boss</h2>
+                <span class="sub-text">ARCADE</span>
+                <div class="launch-btn">LAUNCH</div>
+            </div>
+        </div>
     </div>
 
     <div id="game-container">
@@ -159,17 +166,13 @@
         function launchGranny() { launchGame(selectedChapter === 1 ? 'granny.html' : 'granny2.html'); }
         
         function launchGame(url) {
-            // Hide the exit button
             document.getElementById('exit-lib').style.display = 'none';
-            // Open the game
             document.getElementById('game-container').style.display = 'flex';
             document.getElementById('game-frame').src = url;
         }
 
         function closeGame() {
-            // Bring the exit button back
             document.getElementById('exit-lib').style.display = 'block';
-            // Close the game
             document.getElementById('game-container').style.display = 'none';
             document.getElementById('game-frame').src = '';
         }
